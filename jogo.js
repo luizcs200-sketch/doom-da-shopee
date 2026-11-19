@@ -8,16 +8,16 @@ const S = {
     demon: mk(g => {
         g.fillStyle = '#a31d12'; g.fillRect(16, 22, 32, 42); g.fillRect(8, 28, 10, 26); g.fillRect(46, 28, 10, 26);
         g.fillStyle = '#c9301f'; g.beginPath(); g.arc(32, 18, 13, 0, 7); g.fill();
-        g.fillStyle = '#ffe34d'; g.fillRect(24, 14, 5, 4); g.fillRect(36, 14, 5, 4);
-        g.fillStyle = '#200'; g.fillRect(25, 15, 3, 2); g.fillRect(37, 15, 3, 2);
-        g.fillStyle = '#ffe34d'; g.fillRect(8, 52, 4, 6); g.fillRect(14, 52, 4, 6); g.fillRect(46, 52, 4, 6); g.fillRect(52, 52, 4, 6);
+        g.fillStyle = '#fff44f'; g.fillRect(21, 12, 8, 7); g.fillRect(35, 12, 8, 7);
+        g.fillStyle = '#200'; g.fillRect(23, 14, 4, 4); g.fillRect(37, 14, 4, 4);
+        g.fillStyle = '#fff44f'; g.fillRect(6, 50, 7, 10); g.fillRect(13, 50, 7, 10); g.fillRect(44, 50, 7, 10); g.fillRect(51, 50, 7, 10);
     }),
     boss: mk(g => {
         g.fillStyle = '#4b1a7a'; g.fillRect(12, 20, 40, 44); g.fillRect(4, 24, 10, 30); g.fillRect(50, 24, 10, 30);
         g.fillStyle = '#6a2aa8'; g.beginPath(); g.arc(32, 16, 14, 0, 7); g.fill();
-        g.fillStyle = '#cfff42'; g.fillRect(23, 12, 7, 5); g.fillRect(35, 12, 7, 5);
-        g.fillStyle = '#111'; g.fillRect(25, 13, 3, 3); g.fillRect(37, 13, 3, 3);
-        g.fillStyle = '#cfff42'; g.fillRect(3, 52, 5, 7); g.fillRect(11, 52, 5, 7); g.fillRect(48, 52, 5, 7); g.fillRect(56, 52, 5, 7);
+        g.fillStyle = '#cfff42'; g.fillRect(20, 9, 10, 8); g.fillRect(34, 9, 10, 8);
+        g.fillStyle = '#111'; g.fillRect(23, 11, 5, 5); g.fillRect(36, 11, 5, 5);
+        g.fillStyle = '#cfff42'; g.fillRect(2, 48, 8, 12); g.fillRect(10, 48, 8, 12); g.fillRect(46, 48, 8, 12); g.fillRect(54, 48, 8, 12);
     }),
     hp: mk(g => { g.fillStyle = '#eee'; g.fillRect(18, 34, 28, 24); g.fillStyle = '#d11'; g.fillRect(30, 38, 4, 16); g.fillRect(24, 44, 16, 4) }),
     ammo: mk(g => { g.fillStyle = '#b8860b'; g.fillRect(16, 40, 32, 18); g.fillStyle = '#ddd'; for (let i = 0; i < 4; i++)g.fillRect(20 + i * 7, 34, 4, 8) })
