@@ -8,11 +8,8 @@ const S = {
     demon: mk(g => {
         g.fillStyle = '#a31d12'; g.fillRect(16, 22, 32, 42); g.fillRect(8, 28, 10, 26); g.fillRect(46, 28, 10, 26);
         g.fillStyle = '#c9301f'; g.beginPath(); g.arc(32, 18, 13, 0, 7); g.fill();
-        g.fillStyle = '#e8d8b0'; g.fillRect(17, 2, 4, 10); g.fillRect(43, 2, 4, 10);
-        g.fillStyle = '#ffe34d'; g.fillRect(25, 14, 5, 4); g.fillRect(36, 14, 5, 4);
-        g.fillStyle = '#200'; g.fillRect(26, 23, 12, 5); g.fillStyle = '#fff'; g.fillRect(28, 23, 2, 3); g.fillRect(34, 23, 2, 3); g.fillStyle = '#6a0f08'; g.fillRect(22, 36, 20, 3); g.fillRect(24, 42, 16, 3); g.fillStyle = '#ffe34d'; g.fillRect(9, 52, 3, 5); g.fillRect(14, 52, 3, 5); g.fillRect(47, 52, 3, 5); g.fillRect(52, 52, 3, 5)
     }),
-    boss: mk(g => { g.fillStyle = '#4b1a7a'; g.fillRect(12, 20, 40, 44); g.fillRect(4, 24, 10, 30); g.fillRect(50, 24, 10, 30); g.fillStyle = '#6a2aa8'; g.beginPath(); g.arc(32, 16, 14, 0, 7); g.fill(); g.fillStyle = '#ddd'; g.fillRect(14, 0, 5, 12); g.fillRect(45, 0, 5, 12); g.fillStyle = '#3f3'; g.fillRect(24, 11, 6, 5); g.fillRect(35, 11, 6, 5); g.fillStyle = '#111'; g.fillRect(24, 22, 16, 6); g.fillStyle = '#f33'; g.fillRect(28, 36, 8, 8) }),
+    boss: mk(g => { g.fillStyle = '#4b1a7a'; g.fillRect(12, 20, 40, 44); g.fillRect(4, 24, 10, 30); g.fillRect(50, 24, 10, 30); g.fillStyle = '#6a2aa8'; g.beginPath(); g.arc(32, 16, 14, 0, 7); g.fill() }),
     hp: mk(g => { g.fillStyle = '#eee'; g.fillRect(18, 34, 28, 24); g.fillStyle = '#d11'; g.fillRect(30, 38, 4, 16); g.fillRect(24, 44, 16, 4) }),
     ammo: mk(g => { g.fillStyle = '#b8860b'; g.fillRect(16, 40, 32, 18); g.fillStyle = '#ddd'; for (let i = 0; i < 4; i++)g.fillRect(20 + i * 7, 34, 4, 8) })
 };
