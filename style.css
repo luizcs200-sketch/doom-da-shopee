@@ -47,6 +47,7 @@ canvas {
 
 #ov {
     position: absolute;
+    z-index: 2;
     inset: 0;
     display: flex;
     flex-direction: column;
@@ -68,4 +69,55 @@ canvas {
 #ov p {
     margin: .3rem;
     font-size: clamp(.7rem, 2vw, 1rem)
+}
+
+.quiz-card {
+    width: min(88%, 760px);
+    max-height: 92%;
+    overflow: auto
+}
+
+.quiz-card h1 {
+    font-size: clamp(1.2rem, 4vw, 2.2rem)
+}
+
+.quiz-question {
+    max-width: 700px;
+    margin: 0.8rem auto 1rem;
+    font-size: clamp(.85rem, 2.5vw, 1.25rem);
+    line-height: 1.35
+}
+
+.quiz-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .55rem
+}
+
+.quiz-option,
+.doom-button {
+    border: 2px solid #7d241c;
+    background: rgba(30, 10, 8, .96);
+    color: #f2d9b0;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-size: clamp(.7rem, 2vw, 1rem);
+    padding: .75rem;
+    cursor: pointer
+}
+
+.quiz-option:hover,
+.doom-button:hover {
+    border-color: #ffb347;
+    background: #4b1711
+}
+
+.quiz-status {
+    color: #ffcf70
+}
+
+@media (max-width: 520px) {
+    .quiz-options {
+        grid-template-columns: 1fr
+    }
 }

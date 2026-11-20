@@ -25,7 +25,30 @@ const S = {
 function brick(g, b, m) { g.fillStyle = m; g.fillRect(0, 0, 64, 64); for (let r = 0; r < 8; r++)for (let c = -1; c < 4; c++) { const x = c * 16 + (r % 2) * 8; g.fillStyle = b; g.fillRect(x + 1, r * 8 + 1, 14, 6); g.fillStyle = 'rgba(' + (Math.random() < .5 ? '0,0,0' : '255,255,255') + ',' + Math.random() * .22 + ')'; g.fillRect(x + 1, r * 8 + 1, 14, 6); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(x + 1, r * 8 + 1, 14, 1) } }
 const T = { 1: mk(g => brick(g, '#8a7a6a', '#2e2822')), 2: mk(g => brick(g, '#b03a2a', '#240c08')), 3: mk(g => { g.fillStyle = '#2f6a3a'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#1a3f22'; for (let i = 0; i < 4; i++) { g.fillRect(0, i * 16, 64, 2); g.fillRect(i * 16, 0, 2, 64) } g.fillStyle = '#9d9'; for (let i = 0; i < 4; i++)for (let j = 0; j < 4; j++)g.fillRect(5 + j * 16, 5 + i * 16, 2, 2); g.fillStyle = 'rgba(120,255,120,.15)'; g.fillRect(0, 0, 64, 10) }) };
 let bob = 0, P = [];
-let px, py, pa, hp, mhp, ammo, kills, total, state, en, items, zb = new Float32Array(W), flash = 0, hurt = 0, recoil = 0, keys = {}, cd = 0, wave, lives, wt = 0, wep = 0, fire = false;
+let px, py, pa, hp, mhp, ammo, kills, total, state, en = [], items = [], zb = new Float32Array(W), flash = 0, hurt = 0, recoil = 0, keys = {}, cd = 0, wave, lives, wt = 0, wep = 0, fire = false;
+const QUIZ_SIZE = 10;
+const QUIZ_PASS_SCORE = QUIZ_SIZE / 2;
+let quizIndex = 0, quizCorrect = 0, quizWrong = 0, quizQuestions = [];
+const QUESTIONS = [
+    { q: 'Qual planeta fica mais perto do Sol?', a: 'Mercurio', o: ['Venus', 'Marte', 'Terra'] },
+    { q: 'Quantos lados tem um icosagono regular?', a: '20', o: ['18', '12', '24'] },
+    { q: 'Quem escreveu "Dom Casmurro"?', a: 'Machado de Assis', o: ['Jose de Alencar', 'Clarice Lispector', 'Carlos Drummond'] },
+    { q: 'Qual elemento tem simbolo Fe?', a: 'Ferro', o: ['Fluor', 'Prata', 'Fermio'] },
+    { q: 'Qual e o maior oceano da Terra?', a: 'Pacifico', o: ['Atlantico', 'Indico', 'Artico'] },
+    { q: 'Em que ano o homem pisou pela primeira vez na Lua?', a: '1969', o: ['1959', '1975', '1981'] },
+    { q: 'Qual destas estruturas libera energia na celula?', a: 'Mitocondria', o: ['Nucleo', 'Lisossomo', 'Ribossomo'] },
+    { q: 'Qual foi a capital do Brasil antes de Braslia?', a: 'Rio de Janeiro', o: ['Sao Paulo', 'Salvador', 'Belo Horizonte'] },
+    { q: 'Qual resultado de 12 x 12?', a: '144', o: ['124', '136', '154'] },
+    { q: 'Qual autor criou Sherlock Holmes?', a: 'Arthur Conan Doyle', o: ['Agatha Christie', 'Edgar Allan Poe', 'Jules Verne'] },
+    { q: 'A raiz quadrada de 625 equivale a...', a: '25', o: ['15', '35', '45'] },
+    { q: 'Qual camada atmosferica contem a maioria dos raios UV absorvidos pelo ozonio?', a: 'Estratosfera', o: ['Troposfera', 'Mesosfera', 'Exosfera'] },
+    { q: 'Na fisica, qual unidade mede a resistencia eletrica?', a: 'Ohm', o: ['Volt', 'Ampere', 'Tesla'] },
+    { q: 'Qual numero romano representa 500?', a: 'D', o: ['C', 'M', 'L'] },
+    { q: 'Qual e a linguagem oficial da maioria dos sistemas operacionais Linux?', a: 'Nao possui uma unica lingua', o: ['C', 'Java', 'Python'] },
+    { q: 'Qual pais possui o maior numero de fusos horarios?', a: 'Franca', o: ['Russia', 'Estados Unidos', 'Australia'] },
+    { q: 'Qual gas participa diretamente da respiracao celular aerobica?', a: 'Oxigenio', o: ['Nitrogenio', 'Helio', 'Dioxido de carbono'] },
+    { q: 'O teorema de Pitagoras se aplica a qual tipo de triangulo?', a: 'Triangulo retangulo', o: ['Triangulo equilatero', 'Triangulo obtusangulo', 'Qualquer poligono'] }
+];
 const WP = [{ n: 'PISTOLA', c: 1, cd: 14, u: 1 }, { n: 'SHOTGUN', c: 2, cd: 34, u: 3 }];
 function free() { for (let i = 0; i < 99; i++) { const x = 1 + Math.random() * 14, y = 1 + Math.random() * 14; if (!wall(x, y) && Math.hypot(x - px, y - py) > 5) return [x, y] } return [8.5, 8.5] }
 function spawn(boss) { const p = free(), h = boss ? 60 + wave * 6 : 4 + Math.floor(wave * .6); return { x: p[0], y: p[1], hp: h, mx: h, t: 0, big: boss ? 1.8 : 1, boss, v: boss ? .014 : .014 + wave * .0005, rt: 100 } }
@@ -47,6 +70,66 @@ function cast(a) {
 const wall = (x, y) => !G[y | 0] || G[y | 0][x | 0];
 function move(dx, dy) { const r = .22; if (!wall(px + dx + Math.sign(dx) * r, py)) px += dx; if (!wall(px, py + dy + Math.sign(dy) * r)) py += dy }
 let ac; function beep(f, d, v = .1) { try { ac = ac || new AudioContext(); const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, ac.currentTime); o.frequency.exponentialRampToValueAtTime(40, ac.currentTime + d); g.gain.setValueAtTime(v, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d); o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + d) } catch (e) { } }
+function shuffle(items) {
+    for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+}
+function startQuiz(escaped = false) {
+    state = 'quiz';
+    document.exitPointerLock && document.exitPointerLock();
+    quizIndex = 0;
+    quizCorrect = 0;
+    quizWrong = 0;
+    quizQuestions = shuffle([...QUESTIONS]).slice(0, QUIZ_SIZE).map(question => {
+        const options = shuffle([question.a, ...question.o]);
+        return { q: question.q, options, correct: question.a };
+    });
+    ov.style.display = 'flex';
+    renderQuiz(escaped);
+}
+function renderQuiz(escaped) {
+    const intro = escaped ? '<p class="quiz-status">Você sobreviveu a 15 ondas! Próxima rodada liberada.</p>' : '';
+    if (quizIndex >= QUIZ_SIZE) {
+        ov.innerHTML = '<div class="quiz-card">' +
+            '<h1>RESULTADO</h1>' +
+            '<p>Acertos: <b>' + quizCorrect + '</b> · Erros: <b>' + quizWrong + '</b></p>' +
+            (quizWrong >= QUIZ_PASS_SCORE
+                ? '<p class="quiz-status">Metade ou mais das respostas estava errada.</p><p><b>Entre no Doom e sobreviva a 15 ondas.</b></p><button class="doom-button" id="startDoom"># ABRIR DOOM</button>'
+                : '<p class="quiz-status">Voce passou desta rodada.</p><button class="doom-button" id="newQuiz"># NOVO QUIZ ALEATORIO</button>') +
+            '</div>';
+        if (quizWrong >= QUIZ_PASS_SCORE) document.getElementById('startDoom').onclick = startDoom;
+        else document.getElementById('newQuiz').onclick = () => startQuiz(false);
+        return;
+    }
+    const question = quizQuestions[quizIndex];
+    ov.innerHTML = '<div class="quiz-card">' +
+        '<h1>QUIZ DISFARCADO</h1>' + intro +
+        '<p class="quiz-status">Pergunta ' + (quizIndex + 1) + '/' + QUIZ_SIZE + ' · Acertos ' + quizCorrect + ' · Erros ' + quizWrong + '</p>' +
+        '<p class="quiz-question">' + question.q + '</p>' +
+        '<div class="quiz-options">' +
+        question.options.map((option, i) => '<button class="quiz-option" data-answer="' + i + '"># ' + (i + 1) + ' · ' + option + '</button>').join('') +
+        '</div></div>';
+    ov.querySelectorAll('.quiz-option').forEach(button => button.addEventListener('click', () => answerQuiz(Number(button.dataset.answer))));
+}
+function answerQuiz(optionIndex) {
+    const question = quizQuestions[quizIndex];
+    if (question.options[optionIndex] === question.correct) quizCorrect++; else quizWrong++;
+    quizIndex++;
+    beep(question.options[optionIndex] === question.correct ? 560 : 110, .12, .08);
+    if (quizWrong >= 5) {
+        startDoom();
+        return;
+    }
+    renderQuiz(false);
+}
+function startDoom() {
+    ov.style.display = 'none';
+    reset();
+    try { cv.requestPointerLock() } catch (e) { }
+}
 function shoot() {
     if (state !== 'play' || cd > 0 || wt > 0) return; const w = WP[wep]; if (ammo < w.c) { beep(120, .05); return }
     ammo -= w.c; cd = w.cd; flash = 4; recoil = wep == 1 ? 14 : 8; beep(wep == 1 ? 160 : 300, .2, .15);
@@ -58,9 +141,9 @@ function hit(off, dmg) {
         const dx = e.x - px, dy = e.y - py, d = Math.hypot(dx, dy); let da = Math.atan2(dy, dx) - pa - off; da = Math.atan2(Math.sin(da), Math.cos(da));
         if (Math.abs(da) < Math.atan(.4 / d) + .02 && d < bd && d < cast(pa + off + da)[0]) { best = e; bd = d }
     }
-    if (best) { best.hp -= bd < 4 ? dmg : Math.max(1, dmg * .6); best.pain = 4; for (let i = 0; i < 5; i++)P.push({ x: W / 2, y: H / 2 - 6, vx: (Math.random() - .5) * 3, vy: -Math.random() * 2.5, l: 18 }); beep(90, .1, .08); if (best.hp <= 0) { en.splice(en.indexOf(best), 1); kills++; if (Math.random() < .3) items.push({ x: best.x, y: best.y, k: 'ammo' }); if (en.length === 0) { if (wave >= 30) { state = 'win'; show('VITÓRIA!', 'Você sobreviveu às 30 ondas!') } else { if (wave % 5 === 0) lives++; wave++; mhp += 4; startWave() } } } }
+    if (best) { best.hp -= bd < 4 ? dmg : Math.max(1, dmg * .6); best.pain = 4; for (let i = 0; i < 5; i++)P.push({ x: W / 2, y: H / 2 - 6, vx: (Math.random() - .5) * 3, vy: -Math.random() * 2.5, l: 18 }); beep(90, .1, .08); if (best.hp <= 0) { en.splice(en.indexOf(best), 1); kills++; if (Math.random() < .3) items.push({ x: best.x, y: best.y, k: 'ammo' }); if (en.length === 0) { if (wave >= 15) { state = 'quiz'; startQuiz(true) } else { if (wave % 5 === 0) lives++; wave++; mhp += 4; startWave() } } } }
 }
-function show(t, s) { ov.innerHTML = '<h1>' + t + '</h1><p>' + s + '</p><p><b>Clique para jogar de novo</b></p>'; ov.style.display = 'flex'; document.exitPointerLock && document.exitPointerLock() }
+function show(t, s) { ov.innerHTML = '<div class="quiz-card"><h1>' + t + '</h1><p>' + s + '</p><button class="doom-button" id="retryDoom"># TENTAR AS 15 ONDAS NOVAMENTE</button></div>'; ov.style.display = 'flex'; document.exitPointerLock && document.exitPointerLock(); document.getElementById('retryDoom').onclick = startDoom }
 function update() {
     if (cd > 0) cd--; if (wt > 0) wt--; if (flash > 0) flash--; if (hurt > 0) hurt--; if (recoil > 0) recoil--;
     const sp = .06; let f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0), s = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
@@ -109,7 +192,7 @@ function render() {
     if (hurt) { ctx.fillStyle = 'rgba(200,0,0,' + hurt * .04 + ')'; ctx.fillRect(0, 0, W, H) }
     // HUD
     ctx.fillStyle = 'rgba(20,5,5,.85)'; ctx.fillRect(0, H - 18, W, 18); ctx.font = 'bold 11px "Courier New",monospace'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#400'; ctx.fillRect(3, H - 15, 78, 12); ctx.fillStyle = hp > mhp * .3 ? '#2a2' : '#c22'; ctx.fillRect(3, H - 15, 78 * hp / mhp, 12); ctx.fillStyle = '#fff'; ctx.fillText('HP ' + Math.ceil(hp) + '/' + mhp, 6, H - 9); ctx.fillStyle = '#fd4'; ctx.fillText('MUN ' + ammo, 88, H - 9); ctx.fillStyle = '#f96'; ctx.fillText('ONDA ' + wave + '/30', 140, H - 9); ctx.fillStyle = '#f6a'; ctx.fillText('♥' + lives, 215, H - 9); ctx.fillStyle = '#9cf'; ctx.font = 'bold 9px "Courier New",monospace'; ctx.fillText(WP[wep].n, 245, H - 9);
+    ctx.fillStyle = '#400'; ctx.fillRect(3, H - 15, 78, 12); ctx.fillStyle = hp > mhp * .3 ? '#2a2' : '#c22'; ctx.fillRect(3, H - 15, 78 * hp / mhp, 12); ctx.fillStyle = '#fff'; ctx.fillText('HP ' + Math.ceil(hp) + '/' + mhp, 6, H - 9); ctx.fillStyle = '#fd4'; ctx.fillText('MUN ' + ammo, 88, H - 9); ctx.fillStyle = '#f96'; ctx.fillText('ONDA ' + wave + '/15', 140, H - 9); ctx.fillStyle = '#f6a'; ctx.fillText('♥' + lives, 215, H - 9); ctx.fillStyle = '#9cf'; ctx.font = 'bold 9px "Courier New",monospace'; ctx.fillText(WP[wep].n, 245, H - 9);
     if (wt > 0) { ctx.textAlign = 'center'; ctx.font = 'bold 22px "Courier New",monospace'; ctx.fillStyle = wave % 5 ? '#fd4' : '#f33'; ctx.fillText(wave % 5 ? 'ONDA ' + wave : 'ONDA ' + wave + ' — CHEFE!', W / 2, 60); ctx.textAlign = 'left' }
     // minimapa
     ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(4, 4, 64, 64);
@@ -122,5 +205,5 @@ addEventListener('keydown', e => { keys[e.code] = true; const n = +e.key; if (n 
 addEventListener('keyup', e => keys[e.code] = false);
 addEventListener('mousemove', e => { if (document.pointerLockElement === cv) pa += e.movementX * .003 });
 cv.addEventListener('mousedown', () => { if (state === 'play') { if (document.pointerLockElement !== cv) cv.requestPointerLock && cv.requestPointerLock(); fire = true; shoot() } }); addEventListener('mouseup', () => fire = false);
-ov.addEventListener('click', () => { ov.style.display = 'none'; reset(); try { cv.requestPointerLock() } catch (e) { } });
-reset(); state = 'menu'; loop();
+startQuiz(false);
+loop();
